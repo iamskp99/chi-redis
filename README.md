@@ -1,1 +1,1 @@
-A demo app for testing redis integration with GO.
+A demo app for testing redis integration with Go
