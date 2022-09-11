@@ -2,6 +2,8 @@ module gitlab.com/pragmaticreviews/golang-mux-api
 
 go 1.12
 
+replace github.com/keploy/go-sdk => ../go-sdk
+
 require (
 	github.com/go-chi/chi v4.0.3+incompatible
 	github.com/go-redis/redis/v8 v8.11.5

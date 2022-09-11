@@ -33,7 +33,7 @@ func NewPostController(service service.PostService, cache cache.PostCache) PostC
 func (*controller) GetPostByID(response http.ResponseWriter, request *http.Request) {
 	response.Header().Set("Content-Type", "application/json")
 	postID := strings.Split(request.URL.Path, "/")[2]
-	var post *entity.Post = postCache.Get(postID)
+	var post *entity.Post = postCache.Get(request.Context(), postID)
 	if post == nil {
 		post, err := postService.FindByID(postID)
 		if err != nil {

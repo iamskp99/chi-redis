@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/go-redis/redis/v8"
+	"github.com/keploy/go-sdk/integrations/kredis"
 	"gitlab.com/pragmaticreviews/golang-mux-api/entity"
 )
 
@@ -44,6 +45,24 @@ func (krc *keployRedisClient) Do(ctx context.Context, args ...interface{}) *redi
 }
 
 func (krc *keployRedisClient) Get(ctx context.Context, key string) *redis.StringCmd {
+	// if keploy.GetModeFromContext(ctx) == keploy.MODE_OFF {
+	// 	return krc.Client.Get(ctx, key)
+	// }
+	// kctx, err := keploy.GetState(ctx)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// var (
+	// 	resp = &redis.StringCmd{}
+	// )
+	// mode := kctx.Mode
+	// meta := map[string]string{
+	// 	"name":      "redis",
+	// 	"type":      string(models.NoSqlDB),
+	// 	"operation": "Get",
+	// 	"key":       key,
+	// }
+	// mock, res := keploy.ProcessDep(ctx, krc.log, meta, resp, kerr)
 	fmt.Println("\ninto keploys's redis Get method")
 	return krc.Client.Get(ctx, key)
 }
@@ -53,13 +72,13 @@ func (krc *keployRedisClient) Set(ctx context.Context, key string, value interfa
 	return krc.Client.Set(ctx, key, value, expiration)
 }
 
-func (cache *redisCache) getClient() *keployRedisClient {
+func (cache *redisCache) getClient() *kredis.RedisClient {
 	client := redis.NewClient(&redis.Options{
 		Addr:     cache.host,
 		Password: "",
 		DB:       cache.db,
 	})
-	return &keployRedisClient{Client: *client}
+	return kredis.NewRedisClient(client)
 }
 
 func (cache *redisCache) Set(key string, post *entity.Post) {
@@ -75,12 +94,12 @@ func (cache *redisCache) Set(key string, post *entity.Post) {
 	client.Set(context.Background(), key, json, cache.expires*time.Second)
 }
 
-func (cache *redisCache) Get(key string) *entity.Post {
+func (cache *redisCache) Get(ctx context.Context, key string) *entity.Post {
 	client := cache.getClient()
 
 	// val, err := client.Do("get", key).Result()
 
-	val, err := client.Get(context.Background(), key).Result()
+	val, err := client.Get(ctx, key).Result()
 	if err != nil {
 		return nil
 	}
